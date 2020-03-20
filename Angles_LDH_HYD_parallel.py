@@ -19,8 +19,8 @@ def lectura_archivo(arxiu):
     m_AL=np.array([],float)
     m_ZN2=np.array([],float)
     m_ZN3=np.array([],float)
-    m_S1=np.array([],float)
-    m_N1=np.array([],float)
+    m_OH1=np.array([],float)
+    m_HO1=np.array([],float)
 # Read file and filter and capture the XYZ coordinates of specific atoms
     archivo = open(arxiu,'rt')
     for linea in archivo:
@@ -33,17 +33,17 @@ def lectura_archivo(arxiu):
         if "ZN3" in linea:
             X,Y,Z = linea[21:45].split()[0:4]
             m_ZN3=np.append(m_ZN3,[X,Y,Z])
-        if "S1" in linea:
+        if "OH1" in linea:
             X,Y,Z = linea[21:45].split()[0:4]
-            m_S1=np.append(m_S1,[X,Y,Z])
-        if "N1" in linea:
+            m_OH1=np.append(m_OH1,[X,Y,Z])
+        if "HO1" in linea:
             X,Y,Z = linea[21:45].split()[0:4]
-            m_N1=np.append(m_N1,[X,Y,Z])
+            m_HO1=np.append(m_HO1,[X,Y,Z])
     archivo.close()
 # Capture and manipulate the matrix of cell
     v1x,v2y,v3z,v1y,v1z,v2x,v2z,v3x,v3y = linea.split()
     m_cell=np.array([[v1x,v1y,v1z],[v2x,v2y,v2z],[v3x,v3y,v3z]],float)
-    return(m_AL,m_ZN2,m_ZN3,m_S1,m_N1,m_cell)
+    return(m_AL,m_ZN2,m_ZN3,m_OH1,m_HO1,m_cell)
 
 #replica matriz para evitar contornos
 def matriz_pbc(matriz_A,matriz_celda):
@@ -74,22 +74,22 @@ def matriz_pbc(matriz_A,matriz_celda):
 # Function to calculate de neighbour atoms and the vectors of plane and line to calculate the angle between them.
 def angulo_molecula(j):
     # calulate distances
-    distance_S1AL = np.sqrt(np.sum((np.asarray(matriz_S1[j],float)-np.asarray(matriz_nueva_AL,float))**2,axis=1))
-    distance_S1ZN2 = np.sqrt(np.sum((np.asarray(matriz_S1[j],float)-np.asarray(matriz_nueva_ZN2,float))**2,axis=1))
-    distance_S1ZN3 = np.sqrt(np.sum((np.asarray(matriz_S1[j],float)-np.asarray(matriz_nueva_ZN3,float))**2,axis=1))
+    distance_OH1AL = np.sqrt(np.sum((np.asarray(matriz_OH1[j],float)-np.asarray(matriz_nueva_AL,float))**2,axis=1))
+    distance_OH1ZN2 = np.sqrt(np.sum((np.asarray(matriz_OH1[j],float)-np.asarray(matriz_nueva_ZN2,float))**2,axis=1))
+    distance_OH1ZN3 = np.sqrt(np.sum((np.asarray(matriz_OH1[j],float)-np.asarray(matriz_nueva_ZN3,float))**2,axis=1))
     # locate the atoms of minimal distances
-    indice_dS1AL=np.argmin(distance_S1AL)
-    indice_dS1ZN2=np.argmin(distance_S1ZN2)
-    indice_dS1ZN3=np.argmin(distance_S1ZN3)
+    indice_dOH1AL=np.argmin(distance_OH1AL)
+    indice_dOH1ZN2=np.argmin(distance_OH1ZN2)
+    indice_dOH1ZN3=np.argmin(distance_OH1ZN3)
     # Coordinates of atoms with minimal didstances
-    XYZ_AL = np.asarray(matriz_nueva_AL[indice_dS1AL],float)
-    XYZ_ZN2 = np.asarray(matriz_nueva_ZN2[indice_dS1ZN2],float)
-    XYZ_ZN3 = np.asarray(matriz_nueva_ZN3[indice_dS1ZN3],float)
-    XYZ_S1=np.asarray(matriz_S1[j],float)
-    XYZ_N1=np.asarray(matriz_N1[j],float)
+    XYZ_AL = np.asarray(matriz_nueva_AL[indice_dOH1AL],float)
+    XYZ_ZN2 = np.asarray(matriz_nueva_ZN2[indice_dOH1ZN2],float)
+    XYZ_ZN3 = np.asarray(matriz_nueva_ZN3[indice_dOH1ZN3],float)
+    XYZ_OH1=np.asarray(matriz_OH1[j],float)
+    XYZ_HO1=np.asarray(matriz_HO1[j],float)
     # Vectors of plane metal (AL-ZN2-ZN3) and line (Sterminal-N)
     plano_metal=np.cross((XYZ_ZN2-XYZ_AL),(XYZ_ZN3-XYZ_AL))
-    plano_molecula=np.asarray((XYZ_N1-XYZ_S1),float)
+    plano_molecula=np.asarray((XYZ_HO1-XYZ_OH1),float)
     # Angle of two vectors
     angulo = np.rad2deg(np.arccos(np.clip(np.dot(plano_metal,plano_molecula)/np.linalg.norm(plano_metal)/np.linalg.norm(plano_molecula),-1,1)))
     return(angulo)
@@ -126,12 +126,12 @@ counter_files = int((frame_fin-frame_ini)/frame_step)
 angulos=[]
 for i in range(0,counter_files):
 # Extraction of geometry data form gro files of trajectory extraction
-    matriz_AL,matriz_ZN2,matriz_ZN3,matriz_S1,matriz_N1,matriz_celda=lectura_archivo('test_'+str(i)+'.gro')
+    matriz_AL,matriz_ZN2,matriz_ZN3,matriz_OH1,matriz_HO1,matriz_celda=lectura_archivo('test_'+str(i)+'.gro')
     matriz_AL=np.reshape(matriz_AL,(int(len(matriz_AL)/3),3))
     matriz_ZN2=np.reshape(matriz_ZN2,(int(len(matriz_ZN2)/3),3))
     matriz_ZN3=np.reshape(matriz_ZN3,(int(len(matriz_ZN3)/3),3))
-    matriz_S1=np.reshape(matriz_S1,(int(len(matriz_S1)/3),3))
-    matriz_N1=np.reshape(matriz_N1,(int(len(matriz_N1)/3),3))
+    matriz_OH1=np.reshape(matriz_OH1,(int(len(matriz_OH1)/3),3))
+    matriz_HO1=np.reshape(matriz_HO1,(int(len(matriz_HO1)/3),3))
     matriz_celda=np.reshape(matriz_celda,(3,3))
 # replication of cells to elimate the limits of cell
     matriz_nueva_AL=matriz_pbc(matriz_AL,matriz_celda)
@@ -140,7 +140,7 @@ for i in range(0,counter_files):
 # multiprocessing the angle calculation
     if __name__ == '__main__':
         pool = multiprocessing.Pool(processes=NUM_CPU)
-        angulos.append(pool.map(angulo_molecula, range(0,len(matriz_S1))))
+        angulos.append(pool.map(angulo_molecula, range(0,len(matriz_OH1))))
         pool.close()
 
 datos=np.histogram(angulos,bins=180,range=(0,180),density=True)
