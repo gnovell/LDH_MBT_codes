@@ -127,11 +127,11 @@ angulos=[]
 for i in range(0,counter_files):
 # Extraction of geometry data form gro files of trajectory extraction
     matriz_AL,matriz_ZN2,matriz_ZN3,matriz_S1,matriz_N1,matriz_celda=lectura_archivo('test_'+str(i)+'.gro')
-    matriz_AL=np.reshape(matriz_AL,(len(matriz_AL),3))
-    matriz_ZN2=np.reshape(matriz_ZN2,(len(matriz_ZN2),3))
-    matriz_ZN3=np.reshape(matriz_ZN3,(len(matriz_ZN3),3))
-    matriz_S1=np.reshape(matriz_S1,(len(matriz_S1),3))
-    matriz_N1=np.reshape(matriz_N1,(len(matriz_N1),3))
+    matriz_AL=np.reshape(matriz_AL,(int(len(matriz_AL)/3),3))
+    matriz_ZN2=np.reshape(matriz_ZN2,(int(len(matriz_ZN2)/3),3))
+    matriz_ZN3=np.reshape(matriz_ZN3,(int(len(matriz_ZN3)/3),3))
+    matriz_S1=np.reshape(matriz_S1,(int(len(matriz_S1)/3),3))
+    matriz_N1=np.reshape(matriz_N1,(int(len(matriz_N1)/3),3))
     matriz_celda=np.reshape(matriz_celda,(3,3))
 # replication of cells to elimate the limits of cell
     matriz_nueva_AL=matriz_pbc(matriz_AL,matriz_celda)
