@@ -14,23 +14,19 @@ def lectura_file(arxiu):
 
 
 ###################################################3
-#arxivos="/home/gnovell/Documents/SELMA/TEST_50MBT/TEST_MBT_Waters_itp/XRDs/PYTHON/tmp"
-#archivo = open("/home/gnovell/Documents/Daniel_travieso/test_54w/geom.out.gen", 'rt')
-#arxiu = "/home/novell/PycharmProjects/XRD_multiSum/md.gro"
-#lista_arxivos = ["./xrd_MBT_1W_40000.dat","./xrd_MBT_1W_40200.dat","./xrd_MBT_1W_40400.dat","./xrd_MBT_1W_40600.dat"]
+#input a file with a list of files
 arxivos = sys.argv[1]
 lista_arxivos = []
 arxiu = open(arxivos,'rt')
 for linea in arxiu:
     lista_arxivos.append(linea[:-1])
 arxiu.close()
-
+#read files and extract the data 
 lista_data = []
 for i in range(len(lista_arxivos)):
     arxiu = lista_arxivos[i]
     lista_data.append(lectura_file(arxiu))
-
-# sumar datos
+#Concatenate and add results 
 matriz_datos = np.concatenate(lista_data,axis=1)
 matriz_resultados = np.zeros((len(matriz_datos),2),float)
 matriz_resultados[::,0]=matriz_datos[::,0]
@@ -39,8 +35,6 @@ for i in range(len(lista_arxivos)):
     lista_results.append([matriz_datos[::,2*i+1]])
 matriz_suma=np.transpose(np.concatenate(lista_results))
 matriz_resultados[::,1]=np.transpose(np.sum(matriz_suma,axis=1))
-
-#print(str(matriz_resultados[::,0])+'    '+str(matriz_resultados[::,1]))
-#print(result)
+#Print results
 for row in matriz_resultados:
     print(str(row[0])+"    "+str(row[1]))
